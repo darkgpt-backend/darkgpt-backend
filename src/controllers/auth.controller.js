@@ -1,22 +1,6 @@
 import { authService } from "../services/auth.service.js";
 
 export const authController = {
-  async register(request, response, next) {
-    try {
-      const result = await authService.register({
-        username: request.body.username,
-        email: request.body.email,
-        password: request.body.password,
-        deviceId: request.body.deviceId,
-        deviceName: request.body.deviceName
-      });
-
-      response.status(201).json(result);
-    } catch (error) {
-      next(error);
-    }
-  },
-
   async login(request, response, next) {
     try {
       const result = await authService.login({
@@ -65,4 +49,3 @@ export const authController = {
     }
   }
 };
-

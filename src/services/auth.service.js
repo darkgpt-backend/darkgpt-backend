@@ -7,6 +7,23 @@ import { ApiError } from "../utils/api-error.js";
 import { deviceBindingService } from "./device-binding.service.js";
 import { integrityService } from "./integrity.service.js";
 
+function addDurationToNow(durationText) {
+  const match = /^(\d+)([mhd])$/.exec(durationText);
+  if (!match) {
+    return new Date(Date.now() + 15 * 60 * 1000);
+  }
+
+  const amount = Number(match[1]);
+  const unit = match[2];
+  const multipliers = {
+    m: 60 * 1000,
+    h: 60 * 60 * 1000,
+    d: 24 * 60 * 60 * 1000
+  };
+
+  return new Date(Date.now() + amount * multipliers[unit]);
+}
+
 function createAccessToken(payload) {
   return jwt.sign(payload, env.jwtAccessSecret, {
     expiresIn: env.accessTokenExpiresIn
@@ -20,32 +37,21 @@ function createRefreshToken(payload) {
 }
 
 export const authService = {
-  async register({ username, email, password, deviceId, deviceName }) {
-    if (!username || !email || !password) {
-      throw new ApiError(400, "Username, email, and password are required.", "VALIDATION_ERROR");
-    }
-
-    const existingUser = await userRepository.findByUsernameOrEmail(username) ??
-      await userRepository.findByUsernameOrEmail(email);
-
-    if (existingUser) {
-      throw new ApiError(409, "A user with this username or email already exists.", "USER_EXISTS");
-    }
-
-    const passwordHash = await bcrypt.hash(password, 10);
-    const user = await userRepository.createUser({ username, email, passwordHash });
-
-    return this.createSessionForUser({
-      user,
-      deviceId: deviceId ?? "unknown-device",
-      deviceName: deviceName ?? "Unknown Device",
-      integrityToken: null
-    });
+  async register() {
+    throw new ApiError(
+      403,
+      "Public sign-up is disabled. Only pre-created DarkGPT accounts can log in.",
+      "PUBLIC_SIGNUP_DISABLED"
+    );
   },
 
   async login({ usernameOrEmail, password, deviceId, deviceName, integrityToken }) {
-    if (!usernameOrEmail || !password) {
-      throw new ApiError(400, "Username/email and password are required.", "VALIDATION_ERROR");
+    if (!usernameOrEmail || !password || !deviceId || !deviceName) {
+      throw new ApiError(
+        400,
+        "Username/email, password, device ID, and device name are required.",
+        "VALIDATION_ERROR"
+      );
     }
 
     const user = await userRepository.findByUsernameOrEmail(usernameOrEmail);
@@ -59,10 +65,14 @@ export const authService = {
       throw new ApiError(401, "Invalid credentials.", "INVALID_CREDENTIALS");
     }
 
+    if (user.status !== "active" || !user.is_precreated) {
+      throw new ApiError(403, "This account is not allowed to log in.", "LOGIN_NOT_ALLOWED");
+    }
+
     return this.createSessionForUser({
       user,
-      deviceId: deviceId ?? "unknown-device",
-      deviceName: deviceName ?? "Unknown Device",
+      deviceId,
+      deviceName,
       integrityToken
     });
   },
@@ -74,8 +84,9 @@ export const authService = {
     }
 
     const deviceCheck = await deviceBindingService.verifyDevice({
-      userId: user.id,
-      deviceId
+      user,
+      deviceId,
+      deviceName
     });
 
     if (!deviceCheck.allowed) {
@@ -90,12 +101,15 @@ export const authService = {
       userId: user.id
     });
 
+    const accessExpiresAt = addDurationToNow(env.accessTokenExpiresIn);
+    const refreshExpiresAt = addDurationToNow(env.refreshTokenExpiresIn);
     const session = await sessionRepository.createSession({
       userId: user.id,
       accessToken,
       refreshToken,
       deviceId,
-      deviceName
+      accessExpiresAt,
+      refreshExpiresAt
     });
 
     return {
@@ -105,7 +119,9 @@ export const authService = {
         accessToken,
         refreshToken,
         deviceId,
-        deviceName
+        deviceName,
+        accessExpiresAt,
+        refreshExpiresAt
       }
     };
   },
@@ -142,10 +158,14 @@ export const authService = {
     const nextRefreshToken = createRefreshToken({
       userId: decoded.userId
     });
+    const accessExpiresAt = addDurationToNow(env.accessTokenExpiresIn);
+    const refreshExpiresAt = addDurationToNow(env.refreshTokenExpiresIn);
 
     await sessionRepository.updateTokens(existingSession.id, {
       accessToken,
-      refreshToken: nextRefreshToken
+      refreshToken: nextRefreshToken,
+      accessExpiresAt,
+      refreshExpiresAt
     });
 
     return {
@@ -154,7 +174,8 @@ export const authService = {
         accessToken,
         refreshToken: nextRefreshToken,
         deviceId: existingSession.device_id,
-        deviceName: existingSession.device_name
+        accessExpiresAt,
+        refreshExpiresAt
       }
     };
   },
@@ -192,4 +213,3 @@ export const authService = {
     await sessionRepository.revokeSession(sessionId);
   }
 };
-

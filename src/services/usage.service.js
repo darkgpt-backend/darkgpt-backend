@@ -1,62 +1,44 @@
-import { env } from "../config/env.js";
+import { userRepository } from "../repositories/user.repository.js";
 import { usageRepository } from "../repositories/usage.repository.js";
 import { ApiError } from "../utils/api-error.js";
 
-function getUtcDateParts() {
+function getUsageDates() {
   const now = new Date();
-  const year = now.getUTCFullYear();
-  const month = String(now.getUTCMonth() + 1).padStart(2, "0");
-  const day = String(now.getUTCDate()).padStart(2, "0");
+  const utcYear = now.getUTCFullYear();
+  const utcMonth = String(now.getUTCMonth() + 1).padStart(2, "0");
+  const utcDay = String(now.getUTCDate()).padStart(2, "0");
 
   return {
-    dailyKey: `${year}-${month}-${day}`,
-    monthlyKey: `${year}-${month}`
+    dailyDate: `${utcYear}-${utcMonth}-${utcDay}`,
+    monthlyDate: `${utcYear}-${utcMonth}-01`
   };
 }
 
 export const usageService = {
   async assertCanUseAi(userId) {
-    const { dailyKey, monthlyKey } = getUtcDateParts();
+    const user = await userRepository.findById(userId);
+    if (!user) {
+      throw new ApiError(404, "User not found.", "USER_NOT_FOUND");
+    }
 
-    const dailyUsage = await usageRepository.findCounter({
-      userId,
-      usageType: "ai_messages",
-      usagePeriod: "daily",
-      periodKey: dailyKey
-    });
+    const { dailyDate, monthlyDate } = getUsageDates();
+    const dailyUsage = await usageRepository.findDailyUsage(userId, dailyDate);
+    const monthlyUsage = await usageRepository.findMonthlyUsage(userId, monthlyDate);
 
-    if ((dailyUsage?.count ?? 0) >= env.dailyAiMessageLimit) {
+    if ((dailyUsage?.request_count ?? 0) >= user.daily_ai_limit) {
       throw new ApiError(429, "Daily AI usage limit reached.", "DAILY_LIMIT_REACHED");
     }
 
-    const monthlyUsage = await usageRepository.findCounter({
-      userId,
-      usageType: "ai_messages",
-      usagePeriod: "monthly",
-      periodKey: monthlyKey
-    });
-
-    if ((monthlyUsage?.count ?? 0) >= env.monthlyAiMessageLimit) {
+    if ((monthlyUsage?.request_count ?? 0) >= user.monthly_ai_limit) {
       throw new ApiError(429, "Monthly AI usage limit reached.", "MONTHLY_LIMIT_REACHED");
     }
   },
 
   async recordAiUsage(userId) {
-    const { dailyKey, monthlyKey } = getUtcDateParts();
+    const { dailyDate, monthlyDate } = getUsageDates();
 
-    await usageRepository.incrementCounter({
-      userId,
-      usageType: "ai_messages",
-      usagePeriod: "daily",
-      periodKey: dailyKey
-    });
-
-    await usageRepository.incrementCounter({
-      userId,
-      usageType: "ai_messages",
-      usagePeriod: "monthly",
-      periodKey: monthlyKey
-    });
+    await usageRepository.incrementDailyUsage(userId, dailyDate);
+    await usageRepository.incrementMonthlyUsage(userId, monthlyDate);
   }
 };
 

@@ -180,6 +180,149 @@ Still needed:
 - add real Play Integrity verification
 - add logging/monitoring
 
+## Preparing the 500 pre-created accounts
+
+DarkGPT is now set up as invite-only.
+
+That means:
+- there is no public signup route
+- users must be inserted by you into PostgreSQL
+- only the accounts you create can log in
+
+Main files for this step:
+- [precreated_users_template.csv](C:/Users/khale/AndroidStudioProjects/DarkGPT14/backend/database/seeds/precreated_users_template.csv)
+- [precreated_users_template.sql](C:/Users/khale/AndroidStudioProjects/DarkGPT14/backend/database/seeds/precreated_users_template.sql)
+- [generate-password-hash.js](C:/Users/khale/AndroidStudioProjects/DarkGPT14/backend/scripts/generate-password-hash.js)
+- [generate-users-csv-template.js](C:/Users/khale/AndroidStudioProjects/DarkGPT14/backend/scripts/generate-users-csv-template.js)
+- [hash-users-from-csv.js](C:/Users/khale/AndroidStudioProjects/DarkGPT14/backend/scripts/hash-users-from-csv.js)
+- [csv-to-user-sql.js](C:/Users/khale/AndroidStudioProjects/DarkGPT14/backend/scripts/csv-to-user-sql.js)
+
+### Bulk workflow for 500 users
+
+Use this workflow:
+
+1. Fill the CSV template
+2. Run the bulk hash script
+3. Run the CSV-to-SQL script
+4. Import the generated SQL into Render PostgreSQL
+
+### CSV template
+
+The generated CSV file is:
+- [precreated_users_template.csv](C:/Users/khale/AndroidStudioProjects/DarkGPT14/backend/database/seeds/precreated_users_template.csv)
+
+It contains 500 rows with these columns:
+- `account_number`
+- `username`
+- `email`
+- `password_plain`
+- `daily_limit`
+- `monthly_limit`
+- `account_status`
+
+### Fields used in the account import template
+
+The SQL template uses these input fields:
+- `email`
+- `password_hash`
+- `monthly_limit`
+- `daily_limit`
+- `account_status`
+
+They are inserted into the real `users` table fields automatically.
+
+### How to generate a password hash
+
+Run:
+
+```bash
+npm run hash:password -- YourStrongPassword123
+```
+
+This prints a bcrypt hash you can paste into `password_hash`.
+
+### How to regenerate the 500-row CSV template
+
+If you want to recreate the CSV automatically, run:
+
+```bash
+npm run users:template
+```
+
+### How to hash all 500 passwords in bulk
+
+Run:
+
+```bash
+npm run users:hash-csv
+```
+
+This reads:
+- [precreated_users_template.csv](C:/Users/khale/AndroidStudioProjects/DarkGPT14/backend/database/seeds/precreated_users_template.csv)
+
+And creates:
+- `database/seeds/precreated_users_hashed.csv`
+
+### How to convert the hashed CSV into SQL
+
+Run:
+
+```bash
+npm run users:csv-to-sql
+```
+
+This reads:
+- `database/seeds/precreated_users_hashed.csv`
+
+And creates:
+- `database/seeds/precreated_users_import.sql`
+
+### How to import users into PostgreSQL on Render
+
+1. Open [precreated_users_template.csv](C:/Users/khale/AndroidStudioProjects/DarkGPT14/backend/database/seeds/precreated_users_template.csv)
+2. Replace the placeholder emails, usernames, and passwords with real values
+3. Run:
+
+```bash
+npm run users:hash-csv
+```
+
+4. Run:
+
+```bash
+npm run users:csv-to-sql
+```
+
+5. Open your Render PostgreSQL dashboard
+6. Open the SQL query editor or connect using a PostgreSQL client
+7. Run [schema.sql](C:/Users/khale/AndroidStudioProjects/DarkGPT14/backend/database/schema.sql) first
+8. Open the generated file:
+   - `database/seeds/precreated_users_import.sql`
+9. Execute that SQL
+10. Confirm the users were inserted
+
+### Recommended workflow for the 500 accounts
+
+1. Prepare a spreadsheet with:
+   - account number
+   - username
+   - email
+   - plain password
+   - daily limit
+   - monthly limit
+   - account status
+2. Paste or export that data into:
+   - [precreated_users_template.csv](C:/Users/khale/AndroidStudioProjects/DarkGPT14/backend/database/seeds/precreated_users_template.csv)
+3. Run the bulk hash script
+4. Run the SQL generator script
+5. Import the generated SQL into Render PostgreSQL
+
+### Why invite-only is enforced
+
+Invite-only is enforced in two ways:
+- [auth.routes.js](C:/Users/khale/AndroidStudioProjects/DarkGPT14/backend/src/routes/auth.routes.js) does not expose a public `/register` route
+- [auth.service.js](C:/Users/khale/AndroidStudioProjects/DarkGPT14/backend/src/services/auth.service.js) rejects public signup internally
+
 ## What we do next for real hosting
 
 1. Choose the hosting platform
@@ -202,4 +345,3 @@ The value of this step is:
 - clear extension points
 - safer long-term direction
 - easier future integration with Android, PostgreSQL, OpenAI, and device rules
-

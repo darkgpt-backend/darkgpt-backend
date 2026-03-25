@@ -8,7 +8,11 @@
   "scripts": {
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
-    "check": "node --check src/server.js"
+    "check": "node --check src/server.js",
+    "hash:password": "node scripts/generate-password-hash.js",
+    "users:template": "node scripts/generate-users-csv-template.js",
+    "users:hash-csv": "node scripts/hash-users-from-csv.js",
+    "users:csv-to-sql": "node scripts/csv-to-user-sql.js"
   },
   "engines": {
     "node": ">=20.0.0"
