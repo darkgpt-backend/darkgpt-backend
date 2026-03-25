@@ -44,6 +44,8 @@ async function importUsers() {
 
     console.error("Import failed");
     console.error(error.message);
+    console.error(error);
+    console.error(error.stack);
     process.exitCode = 1;
   } finally {
     await client.end().catch(() => {});
