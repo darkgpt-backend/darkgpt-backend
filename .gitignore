@@ -1,4 +1,6 @@
 node_modules
 .env
 npm-debug.log*
-
+database/seeds/private_admin_users.csv
+database/seeds/precreated_users_hashed.csv
+database/seeds/precreated_users_import.sql

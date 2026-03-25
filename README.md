@@ -196,7 +196,7 @@ That means:
 - only the accounts you create can log in
 
 Main files for this step:
-- [precreated_users_template.csv](C:/Users/khale/AndroidStudioProjects/DarkGPT14/backend/database/seeds/precreated_users_template.csv)
+- [private_admin_users.csv](C:/Users/khale/AndroidStudioProjects/DarkGPT14/backend/database/seeds/private_admin_users.csv)
 - [precreated_users_template.sql](C:/Users/khale/AndroidStudioProjects/DarkGPT14/backend/database/seeds/precreated_users_template.sql)
 - [generate-password-hash.js](C:/Users/khale/AndroidStudioProjects/DarkGPT14/backend/scripts/generate-password-hash.js)
 - [generate-users-csv-template.js](C:/Users/khale/AndroidStudioProjects/DarkGPT14/backend/scripts/generate-users-csv-template.js)
@@ -207,33 +207,47 @@ Main files for this step:
 
 Use this workflow:
 
-1. Fill the CSV template
+1. Generate the private admin CSV
 2. Run the bulk hash script
 3. Run the CSV-to-SQL script
 4. Import the generated SQL into Render PostgreSQL
 
-### CSV template
+Or run everything in one step:
 
-The generated CSV file is:
-- [precreated_users_template.csv](C:/Users/khale/AndroidStudioProjects/DarkGPT14/backend/database/seeds/precreated_users_template.csv)
+```bash
+npm run users:prepare-import
+```
+
+### Private admin CSV
+
+The generated private admin CSV file is:
+- [private_admin_users.csv](C:/Users/khale/AndroidStudioProjects/DarkGPT14/backend/database/seeds/private_admin_users.csv)
 
 It contains 500 rows with these columns:
 - `account_number`
 - `username`
-- `email`
 - `password_plain`
-- `daily_limit`
-- `monthly_limit`
-- `account_status`
+- `daily_ai_limit`
+- `monthly_ai_limit`
+- `is_active`
+- `limit_enabled`
+
+This file is only for admin use. It is ignored by Git and should stay private.
+
+Ignored generated files:
+- `database/seeds/private_admin_users.csv`
+- `database/seeds/precreated_users_hashed.csv`
+- `database/seeds/precreated_users_import.sql`
 
 ### Fields used in the account import template
 
 The SQL template uses these input fields:
-- `email`
+- `username`
 - `password_hash`
-- `monthly_limit`
-- `daily_limit`
-- `account_status`
+- `daily_ai_limit`
+- `monthly_ai_limit`
+- `is_active`
+- `limit_enabled`
 
 They are inserted into the real `users` table fields automatically.
 
@@ -247,13 +261,21 @@ npm run hash:password -- YourStrongPassword123
 
 This prints a bcrypt hash you can paste into `password_hash`.
 
-### How to regenerate the 500-row CSV template
+### How to regenerate the 500 private accounts
 
-If you want to recreate the CSV automatically, run:
+If you want to recreate the private admin CSV automatically, run:
 
 ```bash
 npm run users:template
 ```
+
+This script now generates:
+- 500 random readable usernames
+- 500 strong random passwords
+- default daily limit `13000`
+- default monthly limit `400000`
+- `is_active = true`
+- `limit_enabled = true`
 
 ### How to hash all 500 passwords in bulk
 
@@ -264,7 +286,7 @@ npm run users:hash-csv
 ```
 
 This reads:
-- [precreated_users_template.csv](C:/Users/khale/AndroidStudioProjects/DarkGPT14/backend/database/seeds/precreated_users_template.csv)
+- [private_admin_users.csv](C:/Users/khale/AndroidStudioProjects/DarkGPT14/backend/database/seeds/private_admin_users.csv)
 
 And creates:
 - `database/seeds/precreated_users_hashed.csv`
@@ -285,40 +307,43 @@ And creates:
 
 ### How to import users into PostgreSQL on Render
 
-1. Open [precreated_users_template.csv](C:/Users/khale/AndroidStudioProjects/DarkGPT14/backend/database/seeds/precreated_users_template.csv)
-2. Replace the placeholder emails, usernames, and passwords with real values
-3. Run:
+1. Run:
+
+```bash
+npm run users:template
+```
+
+2. Open [private_admin_users.csv](C:/Users/khale/AndroidStudioProjects/DarkGPT14/backend/database/seeds/private_admin_users.csv)
+3. Review the generated usernames and passwords and store this file safely
+4. Run:
 
 ```bash
 npm run users:hash-csv
 ```
 
-4. Run:
+5. Run:
 
 ```bash
 npm run users:csv-to-sql
 ```
 
-5. Open your Render PostgreSQL dashboard
-6. Open the SQL query editor or connect using a PostgreSQL client
-7. Run [schema.sql](C:/Users/khale/AndroidStudioProjects/DarkGPT14/backend/database/schema.sql) first
-8. Open the generated file:
+6. Open your Render PostgreSQL dashboard
+7. Open the SQL query editor or connect using a PostgreSQL client
+8. Run [schema.sql](C:/Users/khale/AndroidStudioProjects/DarkGPT14/backend/database/schema.sql) first
+9. Open the generated file:
    - `database/seeds/precreated_users_import.sql`
-9. Execute that SQL
-10. Confirm the users were inserted
+10. Execute that SQL
+11. Confirm the users were inserted
 
 ### Recommended workflow for the 500 accounts
 
-1. Prepare a spreadsheet with:
-   - account number
-   - username
-   - email
-   - plain password
-   - daily limit
-   - monthly limit
-   - account status
-2. Paste or export that data into:
-   - [precreated_users_template.csv](C:/Users/khale/AndroidStudioProjects/DarkGPT14/backend/database/seeds/precreated_users_template.csv)
+1. Generate the private CSV with:
+
+```bash
+npm run users:template
+```
+
+2. Keep [private_admin_users.csv](C:/Users/khale/AndroidStudioProjects/DarkGPT14/backend/database/seeds/private_admin_users.csv) in a safe admin-only location
 3. Run the bulk hash script
 4. Run the SQL generator script
 5. Import the generated SQL into Render PostgreSQL

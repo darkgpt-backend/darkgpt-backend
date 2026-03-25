@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 
 const inputPath = process.argv[2]
   ? path.resolve(process.argv[2])
-  : path.resolve("database", "seeds", "precreated_users_template.csv");
+  : path.resolve("database", "seeds", "private_admin_users.csv");
 
 const outputPath = process.argv[3]
   ? path.resolve(process.argv[3])
@@ -21,11 +21,11 @@ function parseCsv(text) {
 const expectedHeader = [
   "account_number",
   "username",
-  "email",
   "password_plain",
-  "daily_limit",
-  "monthly_limit",
-  "account_status"
+  "daily_ai_limit",
+  "monthly_ai_limit",
+  "is_active",
+  "limit_enabled"
 ];
 
 const content = fs.readFileSync(inputPath, "utf8");
@@ -40,11 +40,11 @@ const outputRows = [
   [
     "account_number",
     "username",
-    "email",
     "password_hash",
-    "daily_limit",
-    "monthly_limit",
-    "account_status"
+    "daily_ai_limit",
+    "monthly_ai_limit",
+    "is_active",
+    "limit_enabled"
   ]
 ];
 
@@ -52,11 +52,11 @@ for (const row of rows) {
   const [
     accountNumber,
     username,
-    email,
     passwordPlain,
-    dailyLimit,
-    monthlyLimit,
-    accountStatus
+    dailyAiLimit,
+    monthlyAiLimit,
+    isActive,
+    limitEnabled
   ] = row;
 
   const passwordHash = await bcrypt.hash(passwordPlain, 10);
@@ -64,11 +64,11 @@ for (const row of rows) {
   outputRows.push([
     accountNumber,
     username,
-    email,
     passwordHash,
-    dailyLimit,
-    monthlyLimit,
-    accountStatus
+    dailyAiLimit,
+    monthlyAiLimit,
+    isActive,
+    limitEnabled
   ]);
 }
 
@@ -79,4 +79,3 @@ fs.writeFileSync(
 );
 
 console.log(`Created hashed CSV: ${outputPath}`);
-

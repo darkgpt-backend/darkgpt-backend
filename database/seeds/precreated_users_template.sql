@@ -7,62 +7,62 @@
 -- - prepare up to 500 allowed accounts
 --
 -- The input column names below are beginner-friendly:
--- - email
+-- - username
 -- - password_hash
--- - monthly_limit
--- - daily_limit
--- - account_status
+-- - daily_ai_limit
+-- - monthly_ai_limit
+-- - is_active
+-- - limit_enabled
 --
 -- They are mapped into the real database columns during the final insert.
 
 with prepared_users (
   account_number,
   username,
-  email,
   password_hash,
-  monthly_limit,
-  daily_limit,
-  account_status
+  daily_ai_limit,
+  monthly_ai_limit,
+  is_active,
+  limit_enabled
 ) as (
   values
     (
       1,
-      'darkgpt_user_001',
-      'user001@example.com',
+      'shadowvector1842',
       'replace_with_bcrypt_hash',
-      250,
-      25,
-      'active'
+      13000,
+      400000,
+      true,
+      true
     ),
     (
       2,
-      'darkgpt_user_002',
-      'user002@example.com',
+      'embermatrix7421',
       'replace_with_bcrypt_hash',
-      250,
-      25,
-      'active'
+      13000,
+      400000,
+      true,
+      true
     )
 )
 insert into users (
   account_number,
   username,
-  email,
   password_hash,
-  monthly_ai_limit,
   daily_ai_limit,
-  status,
+  monthly_ai_limit,
+  is_active,
+  limit_enabled,
   is_precreated
 )
 select
   account_number,
   username,
-  email,
   password_hash,
-  monthly_limit,
-  daily_limit,
-  account_status,
+  daily_ai_limit,
+  monthly_ai_limit,
+  is_active,
+  limit_enabled,
   true
 from prepared_users
 on conflict (account_number) do nothing;
-

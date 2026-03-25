@@ -24,11 +24,11 @@ function escapeSql(value) {
 const expectedHeader = [
   "account_number",
   "username",
-  "email",
   "password_hash",
-  "daily_limit",
-  "monthly_limit",
-  "account_status"
+  "daily_ai_limit",
+  "monthly_ai_limit",
+  "is_active",
+  "limit_enabled"
 ];
 
 const content = fs.readFileSync(inputPath, "utf8");
@@ -44,14 +44,14 @@ const valuesSql = rows
     const [
       accountNumber,
       username,
-      email,
       passwordHash,
-      dailyLimit,
-      monthlyLimit,
-      accountStatus
+      dailyAiLimit,
+      monthlyAiLimit,
+      isActive,
+      limitEnabled
     ] = row;
 
-    return `  (${accountNumber}, '${escapeSql(username)}', '${escapeSql(email)}', '${escapeSql(passwordHash)}', ${monthlyLimit}, ${dailyLimit}, '${escapeSql(accountStatus)}')`;
+    return `  (${accountNumber}, '${escapeSql(username)}', '${escapeSql(passwordHash)}', ${dailyAiLimit}, ${monthlyAiLimit}, ${isActive}, ${limitEnabled})`;
   })
   .join(",\n");
 
@@ -59,11 +59,11 @@ const sql = `-- Generated DarkGPT pre-created user import
 with prepared_users (
   account_number,
   username,
-  email,
   password_hash,
-  monthly_limit,
-  daily_limit,
-  account_status
+  daily_ai_limit,
+  monthly_ai_limit,
+  is_active,
+  limit_enabled
 ) as (
   values
 ${valuesSql}
@@ -71,21 +71,21 @@ ${valuesSql}
 insert into users (
   account_number,
   username,
-  email,
   password_hash,
-  monthly_ai_limit,
   daily_ai_limit,
-  status,
+  monthly_ai_limit,
+  is_active,
+  limit_enabled,
   is_precreated
 )
 select
   account_number,
   username,
-  email,
   password_hash,
-  monthly_limit,
-  daily_limit,
-  account_status,
+  daily_ai_limit,
+  monthly_ai_limit,
+  is_active,
+  limit_enabled,
   true
 from prepared_users
 on conflict (account_number) do nothing;
@@ -93,4 +93,3 @@ on conflict (account_number) do nothing;
 
 fs.writeFileSync(outputPath, sql, "utf8");
 console.log(`Created SQL import file: ${outputPath}`);
-
