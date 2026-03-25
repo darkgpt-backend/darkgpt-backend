@@ -335,6 +335,17 @@ npm run users:csv-to-sql
 10. Execute that SQL
 11. Confirm the users were inserted
 
+You can also import the generated SQL with the backend script:
+
+```bash
+npm run import:users
+```
+
+That script reads:
+- `database/seeds/precreated_users_import.sql`
+
+And executes it against the PostgreSQL database defined by `DATABASE_URL`.
+
 ### Recommended workflow for the 500 accounts
 
 1. Generate the private CSV with:
