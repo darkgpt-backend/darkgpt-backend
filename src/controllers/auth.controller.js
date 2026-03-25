@@ -4,7 +4,7 @@ export const authController = {
   async login(request, response, next) {
     try {
       const result = await authService.login({
-        usernameOrEmail: request.body.usernameOrEmail,
+        username: request.body.username,
         password: request.body.password,
         deviceId: request.body.deviceId,
         deviceName: request.body.deviceName,

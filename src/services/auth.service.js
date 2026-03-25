@@ -45,16 +45,16 @@ export const authService = {
     );
   },
 
-  async login({ usernameOrEmail, password, deviceId, deviceName, integrityToken }) {
-    if (!usernameOrEmail || !password || !deviceId || !deviceName) {
+  async login({ username, password, deviceId, deviceName, integrityToken }) {
+    if (!username || !password || !deviceId || !deviceName) {
       throw new ApiError(
         400,
-        "Username/email, password, device ID, and device name are required.",
+        "Username, password, device ID, and device name are required.",
         "VALIDATION_ERROR"
       );
     }
 
-    const user = await userRepository.findByUsernameOrEmail(usernameOrEmail);
+    const user = await userRepository.findByUsername(username);
 
     if (!user) {
       throw new ApiError(401, "Invalid credentials.", "INVALID_CREDENTIALS");
@@ -65,7 +65,7 @@ export const authService = {
       throw new ApiError(401, "Invalid credentials.", "INVALID_CREDENTIALS");
     }
 
-    if (user.status !== "active" || !user.is_precreated) {
+    if (!user.is_active || !user.is_precreated) {
       throw new ApiError(403, "This account is not allowed to log in.", "LOGIN_NOT_ALLOWED");
     }
 

@@ -3,6 +3,10 @@ import { usageService } from "./usage.service.js";
 import { ApiError } from "../utils/api-error.js";
 import { openAiService } from "./openai.service.js";
 
+function estimateTokens(text) {
+  return Math.max(1, Math.ceil((text?.length ?? 0) / 4));
+}
+
 export const chatService = {
   async listChats(userId) {
     return chatRepository.listChatsByUserId(userId);
@@ -31,7 +35,8 @@ export const chatService = {
     }
 
     await this.ensureChatAccess(userId, chatId);
-    await usageService.assertCanUseAi(userId);
+    const requestedTokens = estimateTokens(content);
+    await usageService.assertCanUseAi(userId, requestedTokens);
 
     const userMessage = await chatRepository.createMessage({
       chatId,
@@ -48,7 +53,8 @@ export const chatService = {
       role: "assistant",
       content: aiResult.reply
     });
-    await usageService.recordAiUsage(userId);
+    const totalTokensUsed = requestedTokens + estimateTokens(aiResult.reply);
+    await usageService.recordAiUsage(userId, totalTokensUsed);
 
     return {
       userMessage,

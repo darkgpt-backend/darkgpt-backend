@@ -59,6 +59,15 @@ export const deviceRepository = {
       `,
       [userId, deviceName]
     );
+  },
+
+  async clearByUserId(userId) {
+    await pool.query(
+      `
+        delete from devices
+        where user_id = $1
+      `,
+      [userId]
+    );
   }
 };
-

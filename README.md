@@ -91,7 +91,7 @@ Important env variables for hosted deployment:
 
 ### Authentication
 
-- register
+- username login
 - login
 - refresh token
 - logout
@@ -112,19 +112,25 @@ Main files:
 
 ### Device binding preparation
 
-This is prepared as a service placeholder, not real enforcement yet.
+Device binding is now enforced in backend login logic.
 
 Main file:
 - [device-binding.service.js](C:/Users/khale/AndroidStudioProjects/DarkGPT14/backend/src/services/device-binding.service.js)
 
 ### Usage limits and tracking
 
-Daily and monthly AI usage architecture is now prepared.
+Daily and monthly AI token usage is now tracked per user.
 
 Main files:
 - [usage.service.js](C:/Users/khale/AndroidStudioProjects/DarkGPT14/backend/src/services/usage.service.js)
 - [usage.repository.js](C:/Users/khale/AndroidStudioProjects/DarkGPT14/backend/src/repositories/usage.repository.js)
 - [schema.sql](C:/Users/khale/AndroidStudioProjects/DarkGPT14/backend/database/schema.sql)
+
+### Manual admin control
+
+Main files:
+- [admin-user.service.js](C:/Users/khale/AndroidStudioProjects/DarkGPT14/backend/src/services/admin-user.service.js)
+- [manual_user_management.sql](C:/Users/khale/AndroidStudioProjects/DarkGPT14/backend/database/admin/manual_user_management.sql)
 
 ### Chat endpoint structure
 
