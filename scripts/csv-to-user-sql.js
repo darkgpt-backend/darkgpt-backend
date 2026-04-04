@@ -68,27 +68,16 @@ with prepared_users (
   values
 ${valuesSql}
 )
-insert into users (
-  account_number,
-  username,
-  password_hash,
-  daily_ai_limit,
-  monthly_ai_limit,
-  is_active,
-  limit_enabled,
-  is_precreated
-)
-select
-  account_number,
-  username,
-  password_hash,
-  daily_ai_limit,
-  monthly_ai_limit,
-  is_active,
-  limit_enabled,
-  true
+update users
+set username = prepared_users.username,
+    password_hash = prepared_users.password_hash,
+    daily_ai_limit = prepared_users.daily_ai_limit,
+    monthly_ai_limit = prepared_users.monthly_ai_limit,
+    is_active = prepared_users.is_active,
+    limit_enabled = prepared_users.limit_enabled,
+    is_precreated = true
 from prepared_users
-on conflict (account_number) do nothing;
+where users.account_number = prepared_users.account_number;
 `;
 
 fs.writeFileSync(outputPath, sql, "utf8");

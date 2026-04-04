@@ -1,12 +1,22 @@
 import fs from "fs";
 import path from "path";
 import pg from "pg";
-import { env } from "../src/config/env.js";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const { Client } = pg;
 const sqlFilePath = path.resolve("database", "seeds", "precreated_users_import.sql");
+const databaseUrl = process.env.DATABASE_URL;
 
 async function importUsers() {
+  if (!databaseUrl) {
+    console.error("Import failed");
+    console.error("Missing DATABASE_URL in .env");
+    process.exitCode = 1;
+    return;
+  }
+
   if (!fs.existsSync(sqlFilePath)) {
     console.error(`Import failed: SQL file not found at ${sqlFilePath}`);
     process.exitCode = 1;
@@ -22,8 +32,10 @@ async function importUsers() {
   }
 
   const client = new Client({
-    connectionString: env.databaseUrl,
-    ssl: env.nodeEnv === "production" ? { rejectUnauthorized: false } : false
+    connectionString: databaseUrl,
+    ssl: {
+      rejectUnauthorized: false
+    }
   });
 
   try {

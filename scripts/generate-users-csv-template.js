@@ -7,11 +7,7 @@ const outputPath = path.resolve("database", "seeds", "private_admin_users.csv");
 const header = [
   "account_number",
   "username",
-  "password_plain",
-  "daily_ai_limit",
-  "monthly_ai_limit",
-  "is_active",
-  "limit_enabled"
+  "password"
 ];
 
 const adjectives = [
@@ -80,9 +76,6 @@ const nouns = [
   "warden"
 ];
 
-const passwordCharacters =
-  "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%^&*_-+=";
-
 function randomItem(list) {
   return list[crypto.randomInt(0, list.length)];
 }
@@ -98,6 +91,9 @@ function generateUsername(usedUsernames) {
     }
   }
 }
+
+const passwordCharacters =
+  "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%^&*_-+=";
 
 function generatePassword(length = 18) {
   let password = "";
@@ -117,11 +113,7 @@ for (let index = 1; index <= 500; index += 1) {
     [
       index,
       generateUsername(usedUsernames),
-      generatePassword(),
-      13000,
-      400000,
-      true,
-      true
+      generatePassword()
     ].join(",")
   );
 }

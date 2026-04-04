@@ -14,7 +14,8 @@
     "users:hash-csv": "node scripts/hash-users-from-csv.js",
     "users:csv-to-sql": "node scripts/csv-to-user-sql.js",
     "users:prepare-import": "npm run users:template && npm run users:hash-csv && npm run users:csv-to-sql",
-    "import:users": "node scripts/import-users.js"
+    "import:users": "node scripts/import-users.js",
+    "setup:database": "node scripts/setup-database.js"
   },
   "engines": {
     "node": ">=20.0.0"

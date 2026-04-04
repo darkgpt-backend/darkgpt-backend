@@ -21,11 +21,7 @@ function parseCsv(text) {
 const expectedHeader = [
   "account_number",
   "username",
-  "password_plain",
-  "daily_ai_limit",
-  "monthly_ai_limit",
-  "is_active",
-  "limit_enabled"
+  "password"
 ];
 
 const content = fs.readFileSync(inputPath, "utf8");
@@ -48,16 +44,13 @@ const outputRows = [
   ]
 ];
 
+const defaultDailyLimit = 13000;
+const defaultMonthlyLimit = 400000;
+const defaultIsActive = true;
+const defaultLimitEnabled = true;
+
 for (const row of rows) {
-  const [
-    accountNumber,
-    username,
-    passwordPlain,
-    dailyAiLimit,
-    monthlyAiLimit,
-    isActive,
-    limitEnabled
-  ] = row;
+  const [accountNumber, username, passwordPlain] = row;
 
   const passwordHash = await bcrypt.hash(passwordPlain, 10);
 
@@ -65,10 +58,10 @@ for (const row of rows) {
     accountNumber,
     username,
     passwordHash,
-    dailyAiLimit,
-    monthlyAiLimit,
-    isActive,
-    limitEnabled
+    defaultDailyLimit,
+    defaultMonthlyLimit,
+    defaultIsActive,
+    defaultLimitEnabled
   ]);
 }
 
