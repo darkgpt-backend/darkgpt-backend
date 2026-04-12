@@ -5,6 +5,7 @@ function buildMarketAnalysisOutput() {
 [market] loading 7-day market intelligence...
 [market] source mode: darkgpt backend terminal analysis
 [market] region: global
+[market] last_24h_window: enabled
 [market] timeframe: last 7 days
 
 ==============================
@@ -14,7 +15,18 @@ Trend: bullish continuation with controlled pullbacks
 Momentum: positive, supported by defensive flow and macro uncertainty
 Volatility: moderate with occasional spikes around rate-sensitive headlines
 Key zones: support 2318-2332 | resistance 2385-2408
+24H summary: Gold stayed bid through intraday weakness and recovered quickly after headline-driven dips.
 7D summary: Gold stayed resilient through shallow retracements and buyers stepped in quickly near support. The weekly structure still favors upside as long as bids remain above the 2318 zone.
+
+==============================
+SILVER (XAGUSD) ANALYSIS
+==============================
+Trend: constructive but less stable than gold
+Momentum: improving after a choppy consolidation phase
+Volatility: high relative to gold, sharper intraday swings
+Key zones: support 27.20-27.45 | resistance 28.10-28.48
+24H summary: Silver tracked risk sentiment more closely and printed wider swings, but dip buyers still defended the lower support band.
+7D summary: Silver remained tradable with stronger volatility than gold, though follow-through has been less reliable and requires tighter risk controls.
 
 ==============================
 CRYPTO MARKET ANALYSIS
@@ -23,6 +35,7 @@ BTC: bullish structure, strong relative strength, spot-led support
 ETH: neutral-bullish, lagging BTC but still holding higher lows
 SOL: aggressive upside beta, momentum strong but volatility elevated
 TOTAL MARKET CAP: improving breadth with leadership concentrated in majors
+24H summary: BTC led the market with orderly strength, ETH followed with slower confirmation, and high-beta names remained reactive to momentum bursts.
 7D summary: Digital assets maintained a risk-on tone, but leverage conditions remain fragile. Pullbacks are being bought, although weaker altcoins are still underperforming compared with BTC.
 
 ==============================
@@ -32,6 +45,8 @@ Market tone: cautiously optimistic
 Momentum profile: positive in majors, mixed in lower-cap assets
 Volatility profile: elevated intraday, tradable swings remain active
 Sentiment read: improving, but still sensitive to macro headlines and ETF-related flow
+24H summary: Market breadth improved modestly, but conviction still sits mostly in BTC and a small cluster of liquid majors.
+7D summary: The broader digital market stayed constructive overall, though rotation quality remains uneven and still favors selective exposure.
 
 ==============================
 BEST CURRENT OPPORTUNITY
@@ -67,6 +82,7 @@ TRADER NOTES
 - Keep position size smaller when stop distance widens due to volatility.
 - If BTC loses leadership, altcoins may weaken faster than majors.
 - Watch macro calendar events because gold and crypto can reprice quickly.
+- Silver can outperform on momentum days, but it usually requires faster execution and stricter stop discipline.
 
 ========================================
 SECURE BROKER CONNECTION
